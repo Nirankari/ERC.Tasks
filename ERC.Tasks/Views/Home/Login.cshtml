@@ -1,0 +1,55 @@
+﻿
+<link href="~/Content/angular-material/angular-material.min.css" rel="stylesheet" />
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+<div class="container" data-ng-controller="UserController">
+    <form name="form" data-ng-submit="ValidateUser()"  novalidate>
+        <div class="jumbotron">
+            <h1>ERC User Login</h1>
+
+        </div>
+        <div class="row">
+
+
+            <p class="alert-danger" data-ng-model="error">{{error}}</p>
+            <p class="form-group" data-ng-class="{ 'has-error': form.username.$error.required }">
+                <div class="col-md-4">
+                    <input type="text" name="username" class="form-control" id="username" data-ng-required="true"
+                           placeholder="Enter user name" data-ng-model="username" data-ng-enter="ValidateUser()" tooltip="Enter user name" />
+
+                </div>
+                <div class="col-md-8"><span data-ng-show="form.username.$error.required" class="alert alert-warning" style="padding:0px !important;">Username is required</span></div>
+            </p>
+            <div class="clearfix"></div>
+            <p class="form-group" data-ng-class="{ 'has-error': form.password.$error.required }">
+                <div class="col-md-4">
+                    <input type="password" name="password" data-ng-enter="ValidateUser()" class="form-control" id="password" data-ng-required="true"
+                           placeholder="Enter user password" data-ng-model="password" tooltip="Enter user password" />
+
+                </div>
+                <div class="col-md-8">
+                    <span data-ng-show="form.password.$error.required" class="alert alert-warning" style="padding:0px !important;">Password is required</span>
+                </div>
+            </p>
+            <div class="clearfix"></div>
+            <hr />
+            <div class="col-md-8">
+                <button type="submit" stylw="float:left !important;" data-ng-disabled="form.$invalid" class="btn btn-primary">Login</button>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<script src="~/Scripts/angular.js"></script>
+<script src="~/TaskAngularScript/Modules.js"></script>
+<script src="~/TaskAngularScript/UserService.js"></script>
+<script src="~/TaskAngularScript/UserController.js"></script>
+<script src="~/Scripts/angular-sanitize.js"></script>
+<script src="~/Scripts/angular-resource.min.js"></script>
+<script src="~/Scripts/angular-material.min.js"></script>
+<script src="~/Scripts/angular-animate.min.js"></script>
+<script src="~/Scripts/angular-aria.min.js"></script>
+<script src="~/Scripts/angular-messages.js"></script>
+<script src="~/Scripts/angular-material-icons.min.js"></script>
+<script src="~/Scripts/angular-route.js"></script>

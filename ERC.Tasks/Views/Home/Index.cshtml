@@ -1,0 +1,1062 @@
+﻿<link href="~/Content/angular-material/angular-material.min.css" rel="stylesheet" />
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+
+<script>
+    $(function () {
+        var dd = new Date();
+        $("#duedate").datepicker();
+        // $("#subduedate").datepicker();
+        $("#subduedate1").datepicker();
+        $("#startdate").datepicker();
+        $("#startdate1").datepicker();
+        $("#startdate2").datepicker();
+        $("#startdate4").datepicker();
+        $("#subduedate4").datepicker();
+        $("#subduedate5").datepicker();
+        $("#subduedate6").datepicker();
+
+    });
+</script>
+
+<div class="jumbotron">
+    <h1>ERC Task Tracker</h1>
+    <div class="row">
+        <p>
+            <button type="button" data-toggle="modal" data-target="#myModal" class="btn btn-primary btn-lg">Create Task</button>
+        </p>
+
+    </div>
+
+</div>
+<div class="row" data-ng-controller="ERCTask_Controller">
+
+    <div class="form-group col-md-8">
+
+        <input type="text" class="form-control glyphicon glyphicon-search" placeholder="Search title" id="txtName" data-ng-model="Title">
+    </div>
+    <div class="cold-md-4">
+        <input class="form-control" type="checkbox" id="chk1" checked>
+    </div>
+    <div class="col-md-4" data-ng-show="loader.loading"><i class="fa fa-spin fa-refresh fa-3x"></i></div>
+ <input type="hidden" id="hdnusername" value=@Session["username"] />
+    <div class="clearfix"></div>
+    <div id="CardView">
+
+        <div id="accordion">
+            <div data-ng-repeat="tt in Tasks | filter:FilterCriteriaCardView ">
+                <md-card class="card">
+                    <md-card-content class="card-content">
+                        <h2 class="card-title">
+                            {{tt.Title}}
+                        </h2>
+                        <p>
+                            {{tt.Description}}
+                        </p>
+                        @*<div class="divider" style="height:2px;background-color:lightgray;" ></div>*@
+                        <div class="md-list-item-text"> Created Date : {{tt.CreatedDate}} </div>
+                        <div class="md-list-item-text"> Start Date : {{tt.TaskDueDate}}  </div>
+                        <div class="md-list-item-text"> Due Date : {{tt.TaskDueDate}}  </div>
+
+                        <div class="md-list-item-text"><b> Task Assigned By : {{tt.TaskAssignedBy}}</b> </div>
+                        <div class="md-list-item-text"><b> Task Assigned To : {{tt.TaskAssignedTo}}</b>  </div>
+                        <br />
+                                                                     @*   {{DisplayRecurrenceDetail(tt.AppointmentStartTime, tt.AppointmentEndTime, tt.RecurrencePatternType, tt.InternalRadioOption, tt.DailyEveryDay, tt.DailyEvery, tt.DailyWeekday, tt.RecurrencePatternFallOn, tt.RecurrencePatternInterval, tt.DayInterval, tt.MonthInterval, tt.WeekNumber, tt.WeekDayName, tt.MonthName, tt.RecurrenceRangeType, tt.RecurrenceRangeStartDate, tt.RecurrenceRangeEndByDate)}}*@
+                        <div class="col-md-12">
+                            <div class="md-actions" layout="row" layout-align="end center">
+                                <md-button title="Expand/Collapse" class="card-action" data-toggle="collapse" data-parent="#accordion" data-target="#col{{tt.Task_ID}}">
+                                    <data-ng-md-icon icon="swap_vert_circle" style="fill:lightgreen"></data-ng-md-icon>
+                                </md-button>
+                                <md-button class="card-action" title="Task Assignment" data-toggle="modal" data-ng-click="fnPopUser(tt.Task_ID, '0')" data-target="#TaskAssignment">
+                                    <data-ng-md-icon icon="assignment" style="fill:lightgreen"></data-ng-md-icon>
+
+                                </md-button>
+                                <md-button class="card-action" data-toggle="modal" title="Recurrence" data-ng-click="RecurrenceDetail(tt.Task_ID)" data-target="#TaskOcurrence">
+                                    <data-ng-md-icon icon="cached" style="fill:lightgreen"></data-ng-md-icon>
+
+                                </md-button>
+                                <md-button class="card-action" data-toggle="modal" title="Add Sub Task" data-ng-click="fnPopId(tt.Task_ID,'1')" data-target="#SubModal">
+                                    <data-ng-md-icon icon="add" style="fill:lightgreen"></data-ng-md-icon>
+
+                                </md-button>
+                                <md-button class="card-action" title="Edit Task" data-toggle="modal" data-ng-click="GetTaskDetail(tt.Task_ID,'0')" data-target="#TaskEdit">
+                                    <data-ng-md-icon icon="create" style="fill:lightgreen"></data-ng-md-icon>
+
+                                </md-button>
+                                <md-button class="card-action" title="Delete Task" data-ng-click="fnPopId(tt.Task_ID, '0')" data-toggle="modal" data-target="#TaskDelete">
+                                    <data-ng-md-icon icon="backspace" style="fill:lightgreen"></data-ng-md-icon>
+
+                                </md-button>
+                            </div>
+                        </div>
+                    </md-card-content>
+                </md-card>
+                <div class="panel-collapse collapse" id="col{{tt.Task_ID}}">
+                    <md-content class="md-container" style="overflow-x: hidden; overflow-y: hidden;">
+                        <md-list class="md-list md-raised" style="margin-left:10px !important;padding-left:10px !important;">
+
+                            <md-list-item class="md-3-line" data-ng-repeat="t in tt.SubTask">
+                                <div class="md-list-item-text" style="margin-left:20px !important;padding-left:20px !important;">
+                                    <h3>{{t.Title}}</h3>
+                                    <h4>{{t.Description}}</h4>
+
+                                    <div class="md-list-item-text"> Created Date : {{t.CreatedDate}} </div>
+                                    <div class="md-list-item-text"> Start Date : {{t.TaskDueDate}}  </div>
+                                    <div class="md-list-item-text"> Due Date : {{t.TaskDueDate}}  </div>
+
+                                    <div class="md-list-item-text"><b> Task Assigned To : {{t.AssignedTo["UserName"]}}</b>  </div>
+
+                                    <p>Status : {{t.Task_Status}}</p>
+
+                                    <div class="md-actions" layout="row" layout-align="end center">
+
+                                        <md-button class="card-action" title="Task Assignment" data-toggle="modal" data-ng-click="fnPopUser(t.SubTask_ID,'1')" data-target="#TaskAssignment">
+                                            <data-ng-md-icon icon="assignment" style="fill:lightgreen"></data-ng-md-icon>
+
+                                        </md-button>
+
+                                        <md-button class="card-action" title="Edit Sub Task" data-toggle="modal" data-ng-click="GetSubTaskDetail(t.SubTask_ID,'1')" data-target="#TaskEdit">
+                                            <data-ng-md-icon icon="create" style="fill:lightgreen"></data-ng-md-icon>
+
+                                        </md-button>
+                                        <md-button class="card-action" title="Delete Sub Task" data-ng-click="fnPopId(t.SubTask_ID,'1')" data-toggle="modal" data-target="#TaskDelete">
+                                            <data-ng-md-icon icon="backspace" style="fill:lightgreen"></data-ng-md-icon>
+
+                                        </md-button>
+
+                                    </div>
+
+
+                                    <div class="row">
+                                        <div class="col-md-8">
+
+                                            <h3 style="text-align:center;">
+                                                {{CalculateCompletion(t.TaskDueDate,t.StartDate)}}
+                                            </h3>
+
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </md-list-item>
+                            <md-divider></md-divider>
+                        </md-list>
+                    </md-content>
+
+
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+        <div class="row">
+            <p class="form-group">
+        </div>
+    </div>
+
+
+
+
+
+    <div id="TableView" style="display: none;">
+
+        <div class="table-responsive">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+
+                        <th style="width: 20%"><a href="#" ng-click="sort('Title',$event)">Title  <span class="{{Header[0]}}"></span><span id="sp1" class="glyphicon glyphicon-chevron-down"></span></th>
+                        <th style="width: 20%"><a href="#" ng-click="sort('Description',$event)">Description <span class="{{Header[1]}}"></span><span id="sp2" class="glyphicon glyphicon-chevron-down"></span></th>
+                        <th style="width: 8%"><a href="#" ng-click="sort('StartDate',$event)">Start <span class="{{Header[2]}}"></span><span id="sp3" class="glyphicon glyphicon-chevron-down"></span></th>
+                        <th style="width: 8%"><a href="#" ng-click="sort('TaskDueDate',$event)">Due <span class="{{Header[3]}}"></span><span id="sp4" class="glyphicon glyphicon-chevron-down"></span></th>
+                        <th style="width: 8%"><a href="#" ng-click="sort('CreatedDate',$event)">Created <span class="{{Header[4]}}"></span><span id="sp5" class="glyphicon glyphicon-chevron-down"></span></th>
+                        <th style="width: 10%"><a href="#" ng-click="sort('TaskAssignedTo',$event)">Assigned To <span class="{{Header[5]}}"></span><span id="sp6" class="glyphicon glyphicon-chevron-down"></span></th>
+                        <th style="width: 10%"><a href="#" ng-click="sort('TaskAssignedBy',$event)">Assigned By <span class="{{Header[6]}}"></span><span id="sp7" class="glyphicon glyphicon-chevron-down"></span></th>
+                        <th style="width: 16%">Actions</th>
+                    </tr>
+                </thead>
+
+                <tr>
+                    <td colspan="8">
+                        <table class="table  table-hover no-margin" data-ng-repeat="tt in Tasks | filter:FilterCriteriaTableView | orderBy:columnToOrder:reverse">
+                            <tr data-toggle="collapse" data-target="#coll{{tt.Task_ID}}" class="clickable">
+                                <td style="width: 20%">{{tt.Title}}</td>
+                                <td style="width: 20%">{{tt.Description}}</td>
+                                <td style="width: 8%">{{DateFormat(tt.StartDate) }}</td>
+                                <td style="width: 8%">{{DateFormat(tt.TaskDueDate)}}</td>
+                                <td style="width: 8%">{{DateFormat(tt.CreatedDate)}}</td>
+                                <td style="width: 10%">{{tt.TaskAssignedTo}}</td>
+                                <td style="width: 10%">{{tt.TaskAssignedBy}}</td>
+                                <td style="width: 16%" class="hidden-phone">
+                                    <div class="md-actions" layout="row" layout-align="end center">
+
+                                        <md-button class="card-action" title="Task Assignment" data-toggle="modal" data-ng-click="fnPopUser(tt.Task_ID)" data-target="#TaskAssignment">
+                                            <data-ng-md-icon icon="assignment" style="fill:lightgreen"></data-ng-md-icon>
+
+                                        </md-button>
+                                        <md-button class="card-action" data-toggle="modal" title="Recurrence" data-ng-click="RecurrenceDetail(tt.Task_ID)" data-target="#TaskOcurrence">
+                                            <data-ng-md-icon icon="cached" style="fill:lightgreen"></data-ng-md-icon>
+
+                                        </md-button>
+                                        <md-button class="card-action" data-toggle="modal" title="Add Sub Task" data-ng-click="fnPopId(tt.Task_ID,'1')" data-target="#SubModal">
+                                            <data-ng-md-icon icon="add" style="fill:lightgreen"></data-ng-md-icon>
+
+                                        </md-button>
+                                        <md-button class="card-action" title="Edit Task" data-toggle="modal" data-ng-click="GetTaskDetail(tt.Task_ID, '0')" data-target="#TaskEdit">
+                                            <data-ng-md-icon icon="create" style="fill:lightgreen"></data-ng-md-icon>
+
+                                        </md-button>
+                                        <md-button class="card-action" title="Delete Task" data-ng-click="fnPopId(tt.Task_ID, '0')" data-toggle="modal" data-target="#TaskDelete">
+                                            <data-ng-md-icon icon="backspace" style="fill:lightgreen"></data-ng-md-icon>
+
+                                        </md-button>
+                                    </div>
+                                </td>
+
+
+                            </tr>
+                            <tr>
+                                <td style="width: 100%" colspan="8">
+                                    <table id="coll{{tt.Task_ID}}" class="collapse" style="width: 100%">
+                                        <tr>
+                                            <td>
+                                                <div class="md-3-line" data-ng-repeat="t in tt.SubTask" style="width: 100%">
+                                                    <h3>{{t.Title}}</h3>
+                                                    <h4>{{t.Description}}</h4>
+                                                    <div class="md-list-item-text">Created Date : {{t.CreatedDate}} </div>
+                                                    <div class="md-list-item-text">Start Date : {{t.TaskDueDate}}  </div>
+                                                    <div class="md-list-item-text">Due Date : {{t.TaskDueDate}}  </div>
+
+                                                    <div class="md-list-item-text"><b>Task Assigned To : {{t.AssignedTo["UserName"]}}</b>  </div>
+
+                                                    <p>Status : {{t.Task_Status}}</p>
+
+
+                                                    <div>
+                                                        <div class="md-actions" layout="row" layout-align="end center">
+
+                                                            <md-button class="card-action" title="Task Assignment" data-toggle="modal" data-ng-click="fnPopUser(t.Task_ID)" data-target="#TaskAssignment">
+                                                                <data-ng-md-icon icon="assignment" style="fill:lightgreen"></data-ng-md-icon>
+
+                                                            </md-button>
+
+                                                            <md-button class="card-action" title="Edit Sub Task" data-toggle="modal" data-ng-click="GetSubTaskDetail(t.Task_ID,'1')" data-target="#TaskEdit">
+                                                                <data-ng-md-icon icon="create" style="fill:lightgreen"></data-ng-md-icon>
+
+                                                            </md-button>
+                                                            <md-button class="card-action" title="Delete Sub Task" data-ng-click="fnPopId(t.Task_ID,'1')" data-toggle="modal" data-target="#TaskDelete">
+                                                                <data-ng-md-icon icon="backspace" style="fill:lightgreen"></data-ng-md-icon>
+
+                                                            </md-button>
+
+                                                        </div>
+                                                        <div><font color="white">---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</font></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+
+
+
+            </table>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="false" data-keyboard="false">
+        <form name="form" role="form">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Create Task</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <p class="input-group ">
+                                <div class="col-md-8">
+                                    <select class="form-control dropup" id="txtclient" placeholder="Enter Task title" data-ng-model="txtClient"
+                                        data-ng-options="r.Name as r.Name for r in TClient" data-ng-init="txtclient='Select Client'">
+                                    </select>
+
+                                </div>
+
+                            </p>
+
+                        </div>
+                        <div class="row">
+                            <p class="form-group" data-ng-class="{ 'has-error': form.txtTitle.$error.required }">
+                                <div class="col-md-12">
+                                    <input type="text" name="txtTitle" class="form-control" id="txtTitle" data-ng-required="true"
+                                        placeholder="Enter Task title" data-ng-model="TaskTitle" tooltip="Enter Title" />
+                                    <span data-ng-show="form.txtTitle.$error.required" class="alert alert-warning" style="padding: 0px !important;">Task title is required</span>
+                                </div>
+
+                            </p>
+                        </div>
+                        <div class="row">
+                            <p class="form-group " data-ng-class="{ 'has-error': form.startdate.$error.required }">
+                                <div class="col-md-4 ">
+                                    <input type="text" class="form-control" id="startdate" style="width: 180px;" name="startdate" placeholder="Select start Date" lower-than="{{duedate}}" data-ng-model="startdate"
+                                        data-ng-required="true" />
+                                    <span data-ng-show="form.startdate.$error.required" class="alert alert-warning" style="padding: 0px !important;">Due date is required</span>
+
+                                </div>
+
+                                <div class="col-md-2 ">
+                                    <select class="form-control" id="dropHour" style="width: 80px;" data-ng-model="dropHour"
+                                        data-ng-options="r.Hour as r.Hour for r in Hour" data-ng-init="dropHour='00'" data-ng-change="AddCompleteDateAndTime()">
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-control" id="dropMinute" style="width: 80px;" data-ng-model="dropMinute"
+                                        data-ng-options="r.Min as r.Min for r in Minute" data-ng-init="dropMinute='00'" data-ng-change="AddCompleteDateAndTime()">
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <select class="form-control" id="dropMeridiem" style="width: 80px;" data-ng-model="dropMeridiem"
+                                        data-ng-options="r.Mer as r.Mer for r in Meridiem" data-ng-init="dropMeridiem='AM'" data-ng-change="AddCompleteDateAndTime()">
+                                    </select>
+                                </div>
+                            </p>
+
+                        </div>
+                        <div class="row">
+                            <p class="form-group " data-ng-class="{ 'has-error': form.duedate.$error.required }">
+                                <div class="col-md-4">
+                                    <input type="text" class="form-control" id="duedate" style="width: 180px;" name="duedate" placeholder="Select due Date" data-ng-model="duedate"
+                                        data-ng-required="true" />
+                                    <span data-ng-show="form.duedate.$error.required" class="alert alert-warning" style="padding: 0px !important;">Due date is required</span>
+                                </div>
+                                <div class="col-md-2 ">
+                                    <select class="form-control" id="dropHour1" style="width: 80px;" data-ng-model="dropHour1"
+                                        data-ng-options="r1.Hour as r1.Hour for r1 in Hour" data-ng-init="dropHour1='00'"
+                                        data-ng-change="AddCompleteDateAndTime1()">
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <select class="form-control" id="dropMinute1" style="width: 80px;" data-ng-model="dropMinute1"
+                                        data-ng-options="r1.Min as r1.Min for r1 in Minute" data-ng-init="dropMinute1='00'" data-ng-change="AddCompleteDateAndTime1()">
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <select class="form-control" id="dropMeridiem1" style="width: 80px;" data-ng-model="dropMeridiem1"
+                                        data-ng-options="r1.Mer as r1.Mer for r1 in Meridiem" data-ng-init="dropMeridiem1='AM'" data-ng-change="AddCompleteDateAndTime1()">
+                                    </select>
+                                </div>
+                            </p>
+                        </div>
+                        <div class="row">
+
+                            <p class="form-group " data-ng-class="{ 'has-error': form.txtDesc.$error.required }">
+                                <div class="col-md-12">
+                                    <textarea class="form-control col-md-12" id="txtDesc" name="txtDesc" data-ng-required="true" placeholder="Enter Task Description"
+                                        data-ng-model="txtDesc" cols="250" rows="5" style="width: 100%;"></textarea>
+                                    <span data-ng-show="form.txtDesc.$error.required" class="alert alert-warning" style="padding: 0px !important;">Task description is required</span>
+                                </div>
+                            </p>
+
+                        </div>
+
+                        <div class="row">
+                            <p class="input-group ">
+                                <div class="col-md-8">
+                                    <select class="form-control dropup" id="txtStatus" data-ng-model="txtStatus"
+                                        data-ng-options="r.Name as r.Name for r in Tstatus" data-ng-init="txtStatus='Open'">
+                                    </select>
+
+                                </div>
+
+                            </p>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" data-dismiss="modal" data-ng-disabled="form.$invalid" class="btn btn-primary" data-ng-click="AddItem()">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modal sub task -->
+    <div class="modal fade" id="TaskOcurrence" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="false">
+        <form id="form10" name="TaskOcurrence" role="form" novalidate>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Appointment Recurrence</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="row">
+
+                            <small>Appointment Time</small>
+
+                            <p class="form-group">
+                                <div class="col-md-2">
+                                    Start:
+
+                                </div>
+
+                                <div class="col-md-6">
+                                    <select class="form-control dropdown" name="appStartTime" data-ng-model="Recurrence.appStartTime" data-ng-change="CountTime()"
+                                        data-ng-options="aa.id as aa.oTime for aa in OcurrenceTime">
+                                    </select>
+
+                                </div>
+
+                            </p>
+                            <div class="clearfix"></div>
+                            <p class="form-group">
+                                <div class="col-md-2">
+                                    End:
+
+                                </div>
+                                <div class="col-md-6">
+                                    <select class="form-control dropdown" name="appEndTime" data-ng-model="Recurrence.appEndTime"
+                                        data-ng-options="aaa.id as aaa.oTime for aaa in OcurrenceTime" data-ng-change="CountTime()">
+                                    </select>
+
+                                </div>
+
+                            </p>
+                            <div class="clearfix"></div>
+                            <p class="form-group">
+                                <div class="col-md-2">
+                                    Duration:
+
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" name="appDurationTime" data-ng-model="Recurrence.appDurationTime" disabled class="form-control" />
+                                </div>
+
+                            </p>
+
+                            <div class="clearfix"></div>
+
+                            <small>Recurrence Pattern</small>
+                            <div style="width: 100%; float: left;">
+                                <div style="width: 32%; float: left;">
+                                    <div class="col-sm-9">
+                                        <div>
+
+                                            <input type="radio" id="Daily" name="PatternType" checked="checked" value="Daily" data-ng-model="Daily"
+                                                data-ng-click="showhide('Daily')" />
+                                            Daily
+
+                                        </div>
+                                        <div>
+
+                                            <input type="radio" id="Weekly" name="PatternType" value="Weekly" data-ng-model="Weekly"
+                                                data-ng-click="showhide('Weekly')" />
+                                            Weekly
+
+                                        </div>
+                                        <div>
+
+                                            <input type="radio" id="Monthly" name="PatternType" value="Monthly" data-ng-model="Monthly"
+                                                data-ng-click="showhide('Monthly')" />
+                                            Monthly
+
+                                        </div>
+                                        <div>
+
+                                            <input type="radio" id="Yearly" name="PatternType" value="Yearly" data-ng-model="Yearly"
+                                                data-ng-click="showhide('Yearly')" />
+                                            Yearly
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="width: 67%; float: left;">
+                                    <!-- Daily Click-->
+                                    <div class="clearfix"></div>
+                                    <div data-ng-if="isDaily" aria-label="Toggle ngHide" data-ng-hide="!isDaily">
+                                        <table cellpadding="0" cellspacing="0" style="width: 98%">
+                                            <tr>
+                                                <td style="width: 40%; vertical-align: top;">
+                                                    <label class="radio-inline">
+                                                        <input type="radio" name="inlineRadioOptions" id="inlineRadio1" data-ng-model="Recurrence.DailyEvery" data-ng-click="fnAssignValue('Daily','0')"
+                                                            value="0">
+                                                        Every
+                                                    </label>
+                                                </td>
+                                                <td style="width: 25%; float: left;">
+                                                    <input type="text" class="form-control" id="DailyEveryDay" data-ng-model="Recurrence.DailyEveryDay"
+                                                        style="width: 50px; line-height: 10px !important;" />&nbsp;
+                                                </td>
+                                                <td style="float: left;">Day(s)</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width: 20%;">
+                                                    <label class="radio-inline">
+                                                        <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="1" data-ng-model="Recurrence.DailyWeekday" data-ng-click="fnAssignValue('Daily','1')">
+                                                        Every Weekday
+                                                    </label>
+
+                                                </td>
+                                                <td colspan="2"></td>
+                                            </tr>
+                                        </table>
+
+
+                                    </div>
+                                    <!--Daily end-->
+                                    <div class="clearfix"></div>
+                                    <!--Weekly start-->
+                                    <div data-ng-if="isWeekly" aria-label="Toggle ngHide" data-ng-hide="!isWeekly">
+                                        <table cellpadding="0" cellspacing="0" style="width: 98%">
+                                            <tr>
+                                                <td>Recur every
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" id="WeekRecurEvery" data-ng-model="Recurrence.WeekRecurEvery"
+                                                        style="width: 50px; line-height: 10px !important;" />
+                                                </td>
+                                                <td>week(s) on:
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <div data-ng-repeat="ww in WeekDay" class="col-md-4" for="ww.Name">
+                                            <input type="checkbox" value="{{ww.Name}}" name="group[]"
+                                                data-ng-checked="selectionWeek.indexOf(ww.Name)>-1"
+                                                data-ng-click="toggleSelectionWeek(ww.Name)" />
+                                            {{ww.Name}}
+                                        </div>
+
+                                    </div>
+                                    <!--Weekly end-->
+
+                                    <div class="clearfix"></div>
+                                    <!--Monthly Start-->
+                                    <div data-ng-if="isMonthly" aria-label="Toggle ngHide" data-ng-hide="!isMonthly">
+                                        <p class="form-group">
+                                            <div class="col-md-2">
+                                                <label class="radio-inline">
+                                                    <input type="radio" name="inlineRadioOptions1" id="inlineRadio3" value="0"
+                                                        data-ng-model="Recurrence.MonthDay" data-ng-click="fnAssignValue('Monthly','0')">
+                                                    Day
+                                                </label>
+                                            </div>
+                                            <div class="col-md-4" style="vertical-align: top; float: left; width: 38% !important;">
+                                                <label class="radio-inline" style="vertical-align: top;">
+                                                    <input type="text" class="form-control col-md-2" id="MonthDaytxt" data-ng-model="Recurrence.MonthDaytxt"
+                                                        style="width: 40px; line-height: 10px !important;" />
+                                                </label>
+                                                of&nbsp;Every
+                                            </div>
+                                            <div class="col-md-6" style="vertical-align: top; float: left; width: 43% !important;">
+                                                <label class="radio-inline">
+                                                    <input type="text" class="form-control" id="MonthEvery" data-ng-model="Recurrence.MonthEvery"
+                                                        style="width: 50px; line-height: 10px !important;" />&nbsp;
+                                                </label>
+                                                month(s)
+                                            </div>
+                                        </p>
+
+
+
+                                        <p class="form-group">
+                                            <div class="col-md-4">
+                                                <label class="radio-inline">
+                                                    <input type="radio" name="inlineRadioOptions1" id="inlineRadio4" value="1" data-ng-model="Recurrence.TheMonth" data-ng-click="fnAssignValue('Monthly','1')">The
+                                                </label>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <select id="MonthWeekNo" data-ng-model="Recurrence.MonthWeekNo" class="form-control col-md-2"
+                                                    data-ng-options="n.Name as n.Name for n in WeekNo">
+                                                </select>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                            <div class="col-md-6" style="vertical-align: top !important; float: left !important; width: 50% !important;">
+                                                <select class="form-control col-md-4" id="MonthWeek" data-ng-model="Recurrence.MonthWeek"
+                                                    data-ng-options="w.Name as w.Name for w in WeekDay" style="width: 100px !important;">
+                                                </select>of&nbsp;every                                                       
+                                            </div>
+                                            <div class="col-md-6" style="vertical-align: top !important; float: left !important; width: 50% !important;">
+                                                <input type="text" class="form-control col-md-2" id="MonthEvery" data-ng-model="Recurrence.MonthMonthInterval"
+                                                    style="width: 40px; line-height: 10px !important;" />month(s)
+                                                        
+                                            </div>
+                                        </p>
+                                    </div>
+                                    <!-- Monthly end-->
+                                    <div class="clearfix"></div>
+                                    <!--Yearly Start-->
+                                    <div data-ng-if="isYearly" aria-label="Toggle ngHide" data-ng-hide="!isYearly">
+                                        <p class="form-group">
+                                            <div class="col-md-2">
+                                                <label class="radio-inline">
+                                                    <input type="radio" name="inlineRadioOptions2" id="inlineRadio5" value="0"
+                                                        data-ng-click="fnAssignValue('Yearly','0')"
+                                                        data-ng-model="Recurrence.YearlyEvery">
+                                                    Every
+                                                </label>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <select class="form-control" id="Yearlymonth" name="Yearlymonth"
+                                                    data-ng-model="Recurrence.Yearlymonth" data-ng-options="mmm.Name as mmm.Name for mmm in Month">
+                                                </select>
+
+
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="radio-inline">
+                                                    <input type="text" name="YearInterval" id="YearInterval" class="form-control col-md-2" style="width: 50px; line-height: 10px !important;"
+                                                        data-ng-model="Recurrence.YearInterval" />
+                                                    Day
+                                                </label>
+                                            </div>
+                                        </p>
+                                        <div class="clearfix"></div>
+                                        <p class="form-group">
+                                            <div class="col-md-2">
+                                                <label class="radio-inline">
+                                                    <input type="radio" name="inlineRadioOptions2" id="inlineRadio6" value="1" data-ng-click="fnAssignValue('Yearly','1')"
+                                                        data-ng-model="Recurrence.TheYear">The
+                                                </label>
+                                            </div>
+
+                                            <div class="col-md-2">
+                                                <select class="form-control dropdown" style="width: 70px" data-ng-model="Recurrence.YearWeekNo"
+                                                    data-ng-options="n.Name as n.Name for n in WeekNo">
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <select class="form-control dropdown" style="width: 90px"
+                                                    data-ng-model="Recurrence.YearlyWeek"
+                                                    data-ng-options="w.Name as w.Name for w in WeekDay">
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <select class="form-control dropdown" style="width: 90px" id="YearlymonthLast"
+                                                    data-ng-model="Recurrence.YearlymonthLast" data-ng-options="mm.Name as mm.Name for mm in Month">
+                                                </select>
+                                            </div>
+                                        </p>
+                                    </div>
+                                    <!-- Yearly end-->
+
+
+                                </div>
+                            </div>
+
+                            <div class="clearfix"></div>
+                            <small>Range Recurrence</small>
+                            <div style="width: 100%; float: left;">
+                                <div style="width: 35%; float: left;">
+                                    <div class="col-sm-9">
+                                        <div>Start:  </div>
+                                        <div>
+                                            <input type="text" id="subduedate5" name="subduedate5" class="form-control" placeholder="Select start Date"
+                                                data-ng-model="Recurrence.subduedate5" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="width: 65%; float: left;">
+                                    <table cellpadding="0" cellspacing="0" style="width: 95%">
+                                        <tr>
+                                            <td colspan="3">
+                                                <input type="radio" id="NoEndDate" name="Range" value="No End Date" data-ng-click="fnRecClickClear('1')"
+                                                    data-ng-model="NoEndDate" />
+                                                No End Date
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <input type="radio" id="EndAfter" name="Range" value="End After" data-ng-model="EndAfterDigit" data-ng-click="fnRecClickClear('2')" />
+                                                End After</td>
+                                            <td>
+                                                <input type="text" class="form-control" style="width: 50px; line-height: 10px !important;"
+                                                    data-ng-model="EndAfterText" />
+                                            </td>
+                                            <td>occurrences</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <input type="radio" id="EndAfter" name="Range" value="End After Date" data-ng-model="EndAfter" data-ng-click="fnRecClickClear('3')" />
+                                                End After</td>
+                                            <td colspan="2">
+                                                <input type="text" id="subduedate6" name="subduedate6" class="form-control" placeholder="Select start Date"
+                                                    data-ng-model="Recurrence.subduedate6" />
+                                            </td>
+
+                                        </tr>
+                                    </table>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" form="form5" class="btn btn-primary" data-dismiss="modal" data-ng-click="AddRecurrence();">OK</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+
+                        <button type="button" form="form5" class="btn btn-default" data-dismiss="modal" data-ng-click="RemoveRecurrence();">Remove Recurrence</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!--Modal for sub task creation without main task drop down-->
+    <div class="modal fade" id="SubModal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true" data-backdrop="false">
+        <form id="form4" name="form4" role="form" novalidate>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Create Sub Task</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <p class="form-group" data-ng-class="{'has-error': form4.SubTaskTitle.$error.required }">
+                                <div class="col-md-12">
+                                    <input type="text" name="SubTaskTitle" class="form-control" id="SubTaskTitle" data-ng-init="SubTaskTitle=''" required
+                                        placeholder="Enter Sub Task title" data-ng-model="SubTaskTitle" />
+                                    <span data-ng-show="form4.SubTaskTitle.$error.required" class="alert alert-warning" style="padding: 0px !important;">Sub Task title is required</span>
+                                </div>
+                            </p>
+                            <p class="form-group " data-ng-class="{ 'has-error': form4.startdate4.$error.required }">
+                                <div class="col-md-12">
+                                    <input type="text" class="form-control" id="startdate4" name="startdate4" placeholder="Select start Date" data-ng-model="startdate4"
+                                        required />
+                                    <span data-ng-show="form4.startdate4.$error.required" class="alert alert-warning" style="padding: 0px !important;">Due date is required</span>
+                                </div>
+                            </p>
+                            <p class="form-group" data-ng-class="{'has-error': form4.subduedate4.$error.required }">
+                                <div class="col-md-12">
+
+                                    <input type="text" id="subduedate4" name="subduedate4" class="form-control col-md-12" required placeholder="Select due Date"
+                                        data-ng-model="subduedate4" />
+                                    <span data-ng-show="form4.subduedate4.$error.required" class="alert alert-warning"
+                                        style="padding: 0px !important;">Sub Task due date is required</span>
+                                </div>
+
+                            </p>
+
+
+                            <p class="form-group" data-ng-class="{'has-error': form4.SubTaskDesc.$error.required }">
+
+                                <div class="col-md-12">
+                                    <textarea class="form-control col-md-12" id="SubTaskDesc" name="SubTaskDesc" required
+                                        placeholder="Enter Task Description"
+                                        data-ng-model="SubTaskDesc" rows="5" style="width: 100%;"></textarea>
+                                    <span data-ng-show="form4.SubTaskDesc.$error.required" class="alert alert-warning" style="padding: 0px !important;">Sub Task description is required</span>
+                                </div>
+                            </p>
+                            <p class="input-group">
+                                <div class="col-md-10">
+                                    <select class="form-control" id="SubTaskStatus" data-ng-model="SubTaskStatus" data-ng-init="SubTaskStatus='Open'"
+                                        data-ng-options="r.Name as r.Name for r in Tstatus">
+                                    </select>
+                                </div>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" form="form4" class="btn btn-primary" data-dismiss="modal" data-ng-click="AddSubItem('1');">Save Sub Task</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+
+
+    <!-- Modal Delete alerts -->
+    <div class="modal fade" id="TaskDelete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="false">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Delete Confirmation</h4>
+                </div>
+                <div class="modal-body">
+                    Do You want to Delete?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" data-ng-click="removeItem(index)">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Task Assignment -->
+    <div class="modal fade" id="TaskAssignment" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="false">
+        <form name="form3" role="form" novalidate>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Task Assignment</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <p class="form-group">
+                                <div class="col-md-8">
+                                    <select id="username" name="username" class="form-control" data-ng-model="username"
+                                        data-ng-options="uu.UserName as uu.DisplayName for uu in ActiveUsers">
+                                    </select>
+                                </div>
+
+                            </p>
+                            <div class="clearfix"></div>
+                            <p class="form-group">
+                                <div class="col-md-12">
+                                    <textarea class="form-control col-md-12" id="txtComment" data-ng-model="txtComment" name="txtComment" data-ng-required="true" placeholder="Enter Task Comment"
+                                        cols="250" rows="5" style="width: 100%;"></textarea>
+
+                                </div>
+                            </p>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" data-ng-click="SaveAssignment()">Save</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <!-- Modal Task Edit -->
+    <div class="modal fade" id="TaskEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="false">
+        <form id="form2" name="form2" role="form" novalidate>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Edit Task</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="row">
+                            <p class="form-group">
+                                <div class="col-md-1">
+                                    Client
+                                </div>
+                                <div class="col-md-9">
+                                    <select class="form-control dropup" id="txtClientEdit" placeholder="Enter Task title" data-ng-model="txtClientEdit"
+                                        data-ng-options="r.Name as r.Name for r in TClient">
+                                    </select>
+                                </div>
+                            </p>
+                        </div>
+                        <div class="row">
+                            <p class="form-group">
+
+                                <div class="col-md-10">
+                                    <select id="mainTask1" name="mainTask1" class="form-control" disabled data-ng-model="mainTask1"
+                                        data-ng-options="rr.Task_ID as rr.Title for rr in Tasks">
+                                    </select>
+                                </div>
+
+                            </p>
+                        </div>
+                        <div class="row">
+
+                            <p class="form-group" data-ng-class="{'has-error': form2.txtSubTitle1.$error.required }">
+                                <div class="col-md-2 ">
+                                    Sub Title
+                                </div>
+                                <div class="col-md-10">
+                                    <input type="text" class="form-control col-md-12" id="txtSubTitle1" data-ng-model="txtSubTitle1" name="txtSubTitle1" data-ng-required="true"
+                                        placeholder="Enter Task title" />
+                                    <span data-ng-show="form2.txtSubTitle1.$error.required" class="alert alert-warning" style="padding: 0px !important;">Sub Task title is required</span>
+                                </div>
+                            </p>
+                        </div>
+                        <div class="row">
+                            <p class="form-group " data-ng-class="{ 'has-error': form2.startdate2.$error.required }">
+                                <div class="col-md-2 ">
+                                    Start Date
+                                </div>
+                                <div class="col-md-10 ">
+                                    <div class="col-md-5">
+                                        <input type="text" class="form-control" id="startdate2" style="width: 170px;" name="startdate2" placeholder="Select start Date" data-ng-model="startdate2"
+                                            data-ng-required="true" />
+                                        <span data-ng-show="form2.startdate2.$error.required" class="alert alert-warning" style="padding: 0px !important;">start date is required</span>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <select class="form-control" id="dropHour2" style="width: 75px;" data-ng-model="dropHour2"
+                                            data-ng-options="r1.Hour as r1.Hour for r1 in Hour" data-ng-init="dropHour2='00'"
+                                            data-ng-change="AddCompleteDateAndTime2()">
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-control" id="dropMinute2" style="width: 75px;" data-ng-model="dropMinute2"
+                                            data-ng-options="r1.Min as r1.Min for r1 in Minute" data-ng-init="dropMinute2='00'" data-ng-change="AddCompleteDateAndTime2()">
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <select class="form-control" id="dropMeridiem2" style="width: 75px;" data-ng-model="dropMeridiem2"
+                                            data-ng-options="r1.Mer as r1.Mer for r1 in Meridiem" data-ng-init="dropMeridiem2='AM'" data-ng-change="AddCompleteDateAndTime2()">
+                                        </select>
+                                    </div>
+
+                                </div>
+
+
+                            </p>
+                        </div>
+                        <div class="row">
+                            <p class="form-group" data-ng-class="{'has-error': form2.subduedate1.$error.required }">
+
+                                <div class="col-md-2 ">
+                                    Due Date
+                                </div>
+                                <div class="col-md-10 ">
+                                    <div class="col-md-5">
+                                        <input type="text" id="subduedate1" name="subduedate1" style="width: 170px;" data-ng-model="subduedate1" class="form-control" placeholder="Select due Date"
+                                            data-ng-required="true" />
+                                        <span data-ng-show="form2.subduedate1.$error.required" class="alert alert-warning" style="padding: 0px !important;">Sub Task title is required</span>
+                                    </div>
+                                    <div class="col-md-2 ">
+                                        <select class="form-control" id="dropHour3" style="width: 75px;" data-ng-model="dropHour3"
+                                            data-ng-options="r1.Hour as r1.Hour for r1 in Hour" data-ng-init="dropHour3='00'"
+                                            data-ng-change="AddCompleteDateAndTime3()">
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <select class="form-control" id="dropMinute3" style="width: 75px;" data-ng-model="dropMinute3"
+                                            data-ng-options="r1.Min as r1.Min for r1 in Minute" data-ng-init="dropMinute3='00'" data-ng-change="AddCompleteDateAndTime3()">
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <select class="form-control" id="dropMeridiem3" style="width: 75px;" data-ng-model="dropMeridiem3"
+                                            data-ng-options="r1.Mer as r1.Mer for r1 in Meridiem" data-ng-init="dropMeridiem3='AM'" data-ng-change="AddCompleteDateAndTime3()">
+                                        </select>
+                                    </div>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <p class="form-group" data-ng-class="{'has-error': form2.txtSubDesc1.$error.required }">
+                            <div class="col-md-12">
+                                <textarea class="form-control col-md-12" id="txtSubDesc1" data-ng-model="txtSubDesc1" name="txtSubDesc1" data-ng-required="true" placeholder="Enter Task Description"
+                                    cols="250" rows="5" style="width: 100%;"></textarea>
+                                <span data-ng-show="form2.txtSubDesc1.$error.required" class="alert alert-warning" style="padding: 0px !important;">Sub Task description is required</span>
+                            </div>
+                        </p>
+                    </div>
+                    <div class="row">
+                        <p class="form-group">
+                            <div class="col-md-10">
+                                <select class="form-control" id="txtSubStatus1"
+                                    data-ng-model="txtSubStatus1"
+                                    data-ng-options="r.Name as r.Name for r in Tstatus">
+                                </select>
+
+                            </div>
+
+                        </p>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" data-ng-click="EditItem()">Edit</button>
+                </div>
+            </div>
+    </div>
+    </form>
+</div>
+
+
+
+
+
+<script src="~/Scripts/angular.js"></script>
+<script src="~/TaskAngularScript/Modules.js"></script>
+<script src="~/TaskAngularScript/Services.js"></script>
+<script src="~/TaskAngularScript/TaskController.js"></script>
+<script src="~/Scripts/angular-sanitize.js"></script>
+<script src="~/Scripts/angular-resource.min.js"></script>
+<script src="~/Scripts/angular-material.min.js"></script>
+<script src="~/Scripts/angular-animate.min.js"></script>
+<script src="~/Scripts/angular-aria.min.js"></script>
+<script src="~/Scripts/angular-messages.js"></script>
+<script src="~/Scripts/angular-material-icons.min.js"></script>
+
+<script src="~/Scripts/bootstrap-switch.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/bootstrap-switch.css" rel="stylesheet" />
+<script src="~/Scripts/ui-bootstrap-tpls-0.13.2.js"></script>
+
+<script>
+
+    function toggleChevron(e) {
+        $(e.target)
+        .prev('.panel-heading')
+        .find("i .carousel-indicators")
+        .toggle('glyphicon-chevron-down glyphicon-chevron-up');
+
+    }
+    $('#accordion').on('hidden.bs.collapse', toggleChevron);
+    $('#accordion').on('shown.bs.collapse', toggleChevron);
+
+
+</script>
+<script>
+
+    $.fn.bootstrapSwitch.defaults.onText = "Table View";
+    $.fn.bootstrapSwitch.defaults.offText = "Card View";
+    $.fn.bootstrapSwitch.defaults.offColor = "primary";
+
+    $(function (argument) {
+
+
+
+        $('input[id="chk1"]').on('switchChange.bootstrapSwitch', function (event, state) {
+
+            if (document.getElementById('chk1').checked) {
+
+                $(CardView).show();
+                $(TableView).hide();
+            }
+
+            else {
+                $(TableView).show();
+                $(CardView).hide();
+            }
+        });
+        $("[type='checkbox']").bootstrapSwitch();
+
+
+    })
+
+</script>
